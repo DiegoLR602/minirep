@@ -1,17 +1,9 @@
 # minirep
-This repository is used for the ISP-452 Threat Intelligence Lab. Your goal for this module will be to extend the functionality of the tool to incorporate additional services. 
+This repository is used for the ISP-452 Threat Intelligence Lab. 
 
 We will also use this project during our network analysis module to automate blocking of suspicious or malicious IP addresses.
 
-Examples of services with free API access tiers are below (pick one or two, and feel free to find others not listed here):
-* GreyNoise (https://docs.greynoise.io/docs/using-the-greynoise-community-api)
-* Shodan (https://developer.shodan.io/api/requirements)
-* Abuse IPDB (https://www.abuseipdb.com/api.html)
-* ARIN (https://www.arin.net/resources/registry/whois/rws/api/)
-* SecurityTrails (https://docs.securitytrails.com/docs/overview)
-* Proofpoint Emerging Threats (https://rules.emergingthreats.net/)
-* Threat Jammer (https://threatjammer.com/docs/threat-jammer-api-keys)
-* IP GeoLocation API (https://ipgeolocation.io/)
+API Used: Shodan API, VirusTotal API
 
 # Prerequisites
 1. Python 3.8+
@@ -43,6 +35,7 @@ Examples of services with free API access tiers are below (pick one or two, and 
 {
     "vt_api_url":  "https://www.virustotal.com/api/v3",
     "vt_api_key":  "YOUR_API_KEY_HERE"
+    "sh_api_key":  "YOUR_API_KEY_HERE"
 }
 ```
 8. Run minirep.py: `python3 minirep.py`
