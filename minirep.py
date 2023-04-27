@@ -9,8 +9,8 @@ import requests
 from os.path import dirname
 from termcolor import colored,cprint
 
+#Gets VirusTotal reputation
 def fetch_vt_reputation(address,config):
-
     headers = {'x-apikey': config['vt_api_key']}
     response = requests.get(url=f"{config['vt_api_url']}/ip_addresses/{address}", headers=headers)
     if response.status_code == 200:
@@ -19,13 +19,22 @@ def fetch_vt_reputation(address,config):
         print(f"Failed VT IP address lookup for {address}. Status code: {response.status_code}. Message: {response.text}")
         return
 
+#Uses Shodan to scan IP address
 def shodan_scan(config, address):
+    #Finds results of Shodan search, puts it in dictionary
     result = config.host(address)
+
+    #Sorting dictionary into appropriate descriptors
     open_ports = result['ports']
     tags = result['tags']
     isp = result['isp']
     org = result['org']
+
+    #data has a dictionary of it's own
     data = result['data'][0]
+    
+    #Series of try except blocks designed to sort through data dictionary
+    #data dictionary sometimes missing descriptors
     try:
         product = data['product']
     except KeyError:
@@ -43,6 +52,7 @@ def shodan_scan(config, address):
     except KeyError:
         vulns = "N/A"
 
+    #print formatted results of Shodan search
     cprint(colored("""
 -------------
 SHODAN DATA
@@ -51,7 +61,6 @@ SHODAN DATA
     print("Tags: ", tags)
     print("ISP: ", isp)
     print("Organization: ", org)
-    # print("Data: ", data)
     print("Product Version: ", product)
     print("Operating System: ", os)
     print("IP Location: ", location)
@@ -80,12 +89,11 @@ def main(args):
         print(f"Failed to load config file from {config_file_path}.\r\nException: {e}")
         return
 
-    # Print the directions. Comment this out when you no longer need it
-    # render_directions()
-
-    # Query VirusTotal for IP reputation. Feel free to discard this section or use it in a different way
+    #Query Shodan for IP information.
     shodan_api = Shodan(config['sh_api_key'])
     shodan_scan(shodan_api, ip_addr)
+
+    # Query VirusTotal for IP reputation. 
     if vt_rep := fetch_vt_reputation(ip_addr,config):
         cprint(colored("""
 ----------------------------
@@ -95,20 +103,27 @@ VIRUS TOTAL REPUTATION DATA
         print(f"Harmless Votes: {vt_rep['data']['attributes']['total_votes']['harmless']}")
         print(f"Malicious Votes: {vt_rep['data']['attributes']['total_votes']['malicious']}")
     
+    #Validation loop
     while True:
+        #Let user decide on an action
         decision = input("Based on these results, would you like to DROP, ALERT, or PASS connections to this device? ")
+        #DROP
         if (decision.upper() == "DROP"):
             print("Connection successfully dropped.")
             break
+        #ALERT
         elif (decision.upper() == "ALERT"):
             print("Alert successfully issued.")
             break
+        #PASS
         elif (decision.upper() == "PASS"):
             print("Connection successfully passed.")
             break
+        #Invalid Input
         else:
             print("Invalid input. Please only type DROP, ALERT, or PASS to make your decision.")
 
+#Main method
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-a", "--Address", help ="IP address to scan")
